@@ -11,7 +11,7 @@ const numCPUs = require('os').cpus().length;
   await log(3);
   await error(4);
 
-  setTimeout(() => pool.$.shutdown(), 1000);
+  pool.$.shutdown();
 })();
 
 function log(number) {

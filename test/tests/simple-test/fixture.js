@@ -12,7 +12,7 @@ const numCPUs = require('os').cpus().length;
   const pids = await Promise.all(promises);
   console.log(pids);
 
-  setTimeout(() => pool.$.shutdown(), 1000);
+  pool.$.shutdown();
 })();
 
 function getPid() {

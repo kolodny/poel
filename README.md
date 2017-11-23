@@ -65,7 +65,9 @@ have that line above the call to `poel`.
 
 ---
 
-Poel mean worker in Hebrew.
+/pōel/ פועל. *po* as in Edgar Allan Poe, *el* as in the 12th
+letter of the alphabet (`L`).  
+Poel means worker in Hebrew.
 
 [npm-image]: https://img.shields.io/npm/v/poel.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/poel

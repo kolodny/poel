@@ -11,7 +11,7 @@ const numCPUs = require('os').cpus().length;
     console.log('caught error');
     const lines = error.stack.split('\n');
     console.log(lines.filter(line => /thrower/.test(line))[0]);
-    setTimeout(() => pool.$.shutdown(), 1000);
+    pool.$.shutdown();
   }
 
 })();

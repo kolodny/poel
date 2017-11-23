@@ -6,8 +6,11 @@ const util = require('../util');
 describe(__dirname.split('/').pop(), () => {
   const info = {}
   before((done) => util.run(__dirname, info, done));
-  it(`uses the correct streams`, () => {
-    assert.equal(info.stdout, '1\n3\n');
-    assert.equal(info.stderr, '2\n4\n');
+  it('takes less time then if one process ran them all', () => {
+    const crunchingTime = JSON.parse(info.stdout);
+    assert(
+      crunchingTime < 1000 * numCPUs,
+      `${crunchingTime} should be less than ${1000 * numCPUs}`
+    );
   });
 });
