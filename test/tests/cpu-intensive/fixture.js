@@ -1,8 +1,12 @@
+'use strict';
+
 const poel = require('../../../');
 const numCPUs = require('os').cpus().length;
 
-(async () => {
-  const pool = await poel({
+const asyncToGenerator = require('../util').asyncToGenerator;
+
+require('../util').asyncToGenerator(function *() {
+  const pool = yield poel({
     fib,
   });
 
@@ -12,7 +16,7 @@ const numCPUs = require('os').cpus().length;
   for (let i = 0; i < numCPUs + 1; i++) {
     promises.push(pool.fib(sweetSpot))
   }
-  await Promise.all(promises);
+  yield Promise.all(promises);
   console.log(new Date() - start);
 
   pool.$.shutdown();

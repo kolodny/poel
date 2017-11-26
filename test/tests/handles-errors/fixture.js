@@ -1,12 +1,14 @@
+'use strict';
+
 const poel = require('../../../');
 const numCPUs = require('os').cpus().length;
 
-(async () => {
-  const pool = await poel({
+require('../util').asyncToGenerator(function *() {
+  const pool = yield poel({
     thrower,
   });
   try {
-    await pool.thrower();
+    yield pool.thrower();
   } catch (error) {
     console.log('caught error');
     const lines = error.stack.split('\n');

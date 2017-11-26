@@ -1,9 +1,11 @@
+'use strict';
+
 const poel = require('../../../');
 const numCPUs = require('os').cpus().length;
 
-(async () => {
-  const pool = await poel({});
-  console.log(await pool.$.totalWorkers);
+require('../util').asyncToGenerator(function *() {
+  const pool = yield poel({});
+  console.log(yield pool.$.totalWorkers);
   pool.$.shutdown()
 })();
 

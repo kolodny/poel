@@ -92,7 +92,11 @@ module.exports = (methods) => new Promise((resolve) => {
       }
     };
     Object.keys(methods).forEach(key => {
-      runner[key] = (args) => {
+      runner[key] = function() {
+        const args = Array(arguments.length);
+        for (let i = 0, len = arguments.length; i < len; i++) {
+          args[i] = arguments[i];
+        }
         return new Promise((resolve, reject) => {
           let worker = workers[nextWorkerIndex++];
           if (nextWorkerIndex >= workers.length) { nextWorkerIndex = 0; }
@@ -109,7 +113,7 @@ module.exports = (methods) => new Promise((resolve) => {
       const args = data.args;
       const callbackId = data.callbackId;
       try {
-        Promise.resolve(methods[key](args)).then(
+        Promise.resolve(methods[key].apply(null, args)).then(
           value => {
             process.send({ status: 'resolved', value, callbackId });
           },

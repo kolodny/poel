@@ -4,7 +4,7 @@
   "description": "create a pool of cluster workers",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --require babel-polyfill --require babel-register --timeout 450000"
+    "test": "mocha --timeout 450000"
   },
   "keywords": [
     "cluster",
@@ -14,10 +14,6 @@
   "author": "Moshe Kolodny",
   "license": "MIT",
   "devDependencies": {
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-register": "^6.26.0",
     "mocha": "^4.0.1"
   }
 }

@@ -5,21 +5,18 @@ const numCPUs = require('os').cpus().length;
 
 require('../util').asyncToGenerator(function *() {
   const pool = yield poel({
-    log,
-    error,
+    hashify,
+    toLowerCase
   });
-  console.log(1);
-  console.error(2);
-  yield log(3);
-  yield error(4);
+  console.log(yield pool.hashify('foo', 'bar', 'baz'));
 
   pool.$.shutdown();
 })();
 
-function log(number) {
-  console.log(number)
+function hashify() {
+  return [].slice.call(arguments).join('#')
 }
 
-function error(number) {
-  console.error(number)
+function toLowerCase(str) {
+  return str.toLowerCase();
 }

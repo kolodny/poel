@@ -71,7 +71,7 @@ Poel means worker in Hebrew.
 
 [npm-image]: https://img.shields.io/npm/v/poel.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/poel
-[travis-image]: https://img.shields.io/travis/kolodny/poel.svg?style=flat-square
+[travis-image]: https://img.shields.io/travis/kolodny/poel.svg?style=flat-square&branch=master
 [travis-url]: https://travis-ci.org/kolodny/poel
 [downloads-image]: http://img.shields.io/npm/dm/poel.svg?style=flat-square
 [downloads-url]: https://npmjs.org/package/poel

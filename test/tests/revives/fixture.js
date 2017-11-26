@@ -1,8 +1,10 @@
+'use strict';
+
 const poel = require('../../../');
 const cluster = require('cluster');
 
-(async () => {
-  const pool = await poel({
+require('../util').asyncToGenerator(function *() {
+  const pool = yield poel({
     kill,
   });
   console.log(pool.$.totalWorkers);
@@ -12,8 +14,8 @@ const cluster = require('cluster');
     });
     cluster.once('online', resolve)
   });
-  await pool.kill();
-  await killedPromise;
+  yield pool.kill();
+  yield killedPromise;
   console.log(pool.$.totalWorkers);
   pool.$.shutdown()
 })();
