@@ -8,8 +8,7 @@ const util = require('../util');
 describe(__dirname.split('/').pop(), () => {
   const info = {}
   before((done) => util.run(__dirname, info, done));
-  it(`starts a new worker when one dies`, () => {
-    const expectedOutput = `${numCPUs}\nworker exited\n${numCPUs}`;
-    assert.equal(info.stdout.trim(), expectedOutput);
+  it(`rejects dangling tasks`, () => {
+    assert.equal(info.stdout.trim(), 'Error is: Worker died');
   });
 });

@@ -10,7 +10,7 @@ require('../util').asyncToGenerator(function *() {
   console.log(pool.$.totalWorkers);
   const killedPromise = new Promise((resolve) => {
     cluster.once('exit', () => {
-      console.log(pool.$.totalWorkers);
+      console.log('worker exited');
     });
     cluster.once('online', resolve)
   });

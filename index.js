@@ -23,17 +23,16 @@ const errorifyObject = (objectifiedError) => {
 module.exports = (methods) => new Promise((resolve) => {
   if (cluster.isMaster) {
     const workersPromise = [];
-    let workers = [];
-    const updateWorkersArray = () => {
-      workers = [];
+    const getWorkersAsArray = () => {
+      const workers = [];
       for (const id in cluster.workers) {
         workers.push(cluster.workers[id]);
       }
+      return workers
     }
 
     for (let i = 0; i < numCPUs; i++) {
       const worker = cluster.fork();
-      worker.once('online', updateWorkersArray);
       workersPromise.push(new Promise((workerResolve) => {
         worker.once('online', workerResolve);
       }));
@@ -69,17 +68,21 @@ module.exports = (methods) => new Promise((resolve) => {
     const shutdown = () => {
       running = false;
       callbackMap.clear();
-      workers.forEach(worker => worker.process.kill());
+      getWorkersAsArray().forEach(worker => worker.process.kill());
       setTimeout(() => {
-        workers.forEach(worker => worker.kill());
+        getWorkersAsArray().forEach(worker => worker.kill());
       }, 5000).unref();
     }
 
-    cluster.on('exit', () => {
-      updateWorkersArray();
+    cluster.on('exit', (deadWorker) => {
       if (running) {
-        const worker = cluster.fork();
-        worker.once('online', updateWorkersArray);
+        callbackMap.forEach((callbackData, callbackId) => {
+          if (callbackData.workerId === deadWorker.id) {
+            callbackMap.delete(callbackId);
+            callbackData.reject(new Error('Worker died'));
+          }
+        });
+        const newWorker = cluster.fork();
       }
     });
     emitter.once('shutdown', shutdown);
@@ -90,7 +93,7 @@ module.exports = (methods) => new Promise((resolve) => {
     const runner = {
       $: {
         shutdown,
-        get totalWorkers() { return workers.length; },
+        get totalWorkers() { return getWorkersAsArray().length; },
       }
     };
     Object.keys(methods).forEach(key => {
@@ -100,11 +103,13 @@ module.exports = (methods) => new Promise((resolve) => {
           args[i] = arguments[i];
         }
         return new Promise((resolve, reject) => {
-          let worker = workers[nextWorkerIndex++];
+          const workers = getWorkersAsArray();
+          const worker = workers[nextWorkerIndex++];
+          const workerId = worker.id;
           if (nextWorkerIndex >= workers.length) { nextWorkerIndex = 0; }
           const callbackId = nextCallbackId++;
           worker.send({ key, callbackId, args });
-          callbackMap.set(callbackId, { resolve, reject });
+          callbackMap.set(callbackId, { resolve, reject, workerId });
         })
       }
     });
