@@ -12,7 +12,7 @@ Create a pool of cluster workers.
 ```js
 const poel = require('poel');
 (async () => {
-  const pool = poel({
+  const pool = await poel({
     getPid,
     sayHi,
   });
@@ -21,7 +21,7 @@ const poel = require('poel');
     // and then start then start repeating pids.
     console.log(await pool.getPid())
   }
-  await pool.$.shutdown();
+  pool.$.shutdown();
 })();
 
 function getPid() {
