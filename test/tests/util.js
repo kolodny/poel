@@ -3,7 +3,7 @@ const spawn = require('child_process').spawn;
 
 exports.run = (dir, info, done) => {
   const file = path.join(dir, 'fixture')
-  var child = spawn('node', [file]);
+  var child = spawn('node', ['--expose-gc', file]);
   info.stdout = '';
   info.stderr = '';
   const startTime = Date.now();

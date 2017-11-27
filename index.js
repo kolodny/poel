@@ -47,6 +47,7 @@ module.exports = (methods) => new Promise((resolve) => {
     let running = true;
 
     cluster.on('message', function(worker, info) {
+      if (!running) { return; }
 
       // node v4 doesn't pass in worker
       const data = info || worker;
@@ -67,6 +68,7 @@ module.exports = (methods) => new Promise((resolve) => {
 
     const shutdown = () => {
       running = false;
+      callbackMap.clear();
       workers.forEach(worker => worker.process.kill());
       setTimeout(() => {
         workers.forEach(worker => worker.kill());

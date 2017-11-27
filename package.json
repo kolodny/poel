@@ -1,6 +1,6 @@
 {
   "name": "poel",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "create a pool of cluster workers",
   "main": "index.js",
   "scripts": {
