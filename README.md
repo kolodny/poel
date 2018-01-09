@@ -21,16 +21,17 @@ const poel = require('poel');
     // and then start then start repeating pids.
     console.log(await pool.getPid())
   }
-  pool.$.shutdown();
+  console.log(await pool.sayHi('World'))
+  await pool.$.shutdown();
 })();
 
 function getPid() {
   return process.pid;
 }
 
-function sayHi() {
+function sayHi(person) {
   return new Promise((resolve) => {
-    setTimeout(() => resolve('hi'), 200);
+    setTimeout(() => resolve(`Hi ${person}!`), 200);
   });
 }
 ```
@@ -43,8 +44,8 @@ above, it was passed the `getId` and `sayHi` functions. The
 `pool` object returned also has a `getId` and `sayHi`
 method. Calling any method will cycle through the workers, so
 in the example above it will print as many unique numbers as
-there CPU cores on the system. If we called `sayHi` after
-every `getPid` the output from the `getPid` would never
+there CPU cores on the system. If we called `sayHi` inside
+the loop, then  the output from the `getPid` call would never
 include the pids of the odd numbered workers.
 
 ### Gotchas
@@ -54,7 +55,12 @@ mode under the hood. The main thing to keep in mind is that
 you must `await` (or `Promise.resolve()`) the call to `poel`
 before the main logic of your script. The call to `poel` will
 only resolve for the master process, which most of the time
-is really all you want.
+is really all you want.  
+Another thing to watch out for is that value passed into and
+back out of functions go through `JSON.stringify` and
+`JSON.parse`, so passing regexes and functions won't work.
+[`jsan`](https://github.com/kolodny/jsan) is one solution to
+pass complex objects around.
 
 The example above takes advantage of
 [function hoisting](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function#Function_declaration_hoisting)
