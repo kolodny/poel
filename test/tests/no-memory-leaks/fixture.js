@@ -31,10 +31,10 @@ require('../util').asyncToGenerator(function *() {
     for (let i = 0; i < numCPUs; i++) {
       promises.push(pool.workThatHangs());
     }
-    Promise.all(promises);
+    Promise.all(promises).catch(() => {});
   }
 
-  pool.$.shutdown();
+  yield pool.$.shutdown();
   global.gc();
   const endingHeap = heapUsedMiB();
   console.log(JSON.stringify({

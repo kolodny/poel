@@ -1,7 +1,6 @@
 'use strict';
 
 const cluster = require('cluster');
-const EventEmitter = require('events').EventEmitter;
 const numCPUs = require('os').cpus().length;
 
 const objectifyError = error => {
@@ -43,7 +42,6 @@ module.exports = (methods) => new Promise((resolve) => {
     let nextCallbackId = 0
     const callbackMap = new Map();
 
-    const emitter = new EventEmitter();
     let running = true;
 
     cluster.on('message', function(worker, info) {
@@ -66,26 +64,47 @@ module.exports = (methods) => new Promise((resolve) => {
       }
     })
 
-    const shutdown = () => {
+    let shutdownRan = false;
+    const shutdown = () => new Promise(resolve => {
+      if (shutdownRan) {
+        return resolve();
+      }
+      shutdownRan = true;
       running = false;
+      callbackMap.forEach((callbackData, callbackId) => {
+        callbackData.reject(new Error('$.shutdown was called'));
+      });
       callbackMap.clear();
       workers.forEach(worker => worker.process.kill());
       setTimeout(() => {
         workers.forEach(worker => worker.kill());
       }, 5000).unref();
-    }
+      const checkIfShutdownComplete = () => {
+        for (const id in cluster.workers) {
+          setTimeout(checkIfShutdownComplete, 10);
+          return;
+        }
+        resolve();
+      }
+      checkIfShutdownComplete();
+    });
 
-    cluster.on('exit', () => {
+    cluster.on('exit', (deadWorker) => {
       updateWorkersArray();
       if (running) {
+        callbackMap.forEach((callbackData, callbackId) => {
+          if (callbackData.workerId === deadWorker.id) {
+            callbackMap.delete(callbackId);
+            callbackData.reject(new Error('Worker died'));
+          }
+        });
         const worker = cluster.fork();
         worker.once('online', updateWorkersArray);
       }
     });
-    emitter.once('shutdown', shutdown);
     process
-      .on('SIGINT', () => emitter.emit('shutdown'))
-      .on('SIGTERM', () => emitter.emit('shutdown'));
+      .on('SIGINT', shutdown)
+      .on('SIGTERM', shutdown);
 
     const runner = {
       $: {
@@ -104,7 +123,7 @@ module.exports = (methods) => new Promise((resolve) => {
           if (nextWorkerIndex >= workers.length) { nextWorkerIndex = 0; }
           const callbackId = nextCallbackId++;
           worker.send({ key, callbackId, args });
-          callbackMap.set(callbackId, { resolve, reject });
+          callbackMap.set(callbackId, { resolve, reject, workerId: worker.id });
         })
       }
     });
